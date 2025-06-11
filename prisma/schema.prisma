@@ -1,15 +1,52 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  reservations Reservation[]
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+model Movie {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  posterUrl   String
+  genre       String
+  schedules   Schedule[]
+}
+
+model Schedule {
+  id         Int         @id @default(autoincrement())
+  movieId    Int
+  movie      Movie       @relation(fields: [movieId], references: [id])
+  date       DateTime
+  capacity   Int
+  reservations Reservation[]
+  seats      Seat[]
+}
+
+model Seat {
+  id          Int       @id @default(autoincrement())
+  scheduleId  Int
+  number      String
+  isReserved  Boolean   @default(false)
+  schedule    Schedule  @relation(fields: [scheduleId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  reservationId Int?
+}
+
+model Reservation {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  scheduleId Int
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id])
+  schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+  seats      Seat[]
+}
+
+enum Role {
+  ADMIN
+  USER
 }
