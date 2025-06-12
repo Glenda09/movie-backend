@@ -35,4 +35,42 @@ export class UserService {
       access_token: token,
     };
   }
+
+  async findAll() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+  }
+
+  async update(id: number, dto: Partial<{ name: string; password: string }>) {
+    const data: any = {};
+    if (dto.name) data.name = dto.name;
+    if (dto.password) data.password = await bcrypt.hash(dto.password, 10);
+
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    return this.prisma.user.delete({ where: { id } });
+  }
 }
