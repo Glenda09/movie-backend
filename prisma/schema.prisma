@@ -10,12 +10,13 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   name      String
-  email     String    @unique
+  email     String       @unique
   password  String
-  role      Role      @default(USER)
+  role      Role         @default(USER)
   reservations Reservation[]
+  bookings   Booking[]   // <-- esta línea
 }
 
 model Movie {
@@ -35,6 +36,7 @@ model Schedule {
   capacity   Int
   reservations Reservation[]
   seats      Seat[]
+  bookings    Booking[]   // <-- esta línea
 }
 
 model Seat {
@@ -61,3 +63,5 @@ enum Role {
   ADMIN
   USER
 }
+
+
