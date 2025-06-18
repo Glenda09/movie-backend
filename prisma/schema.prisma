@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // o "mysql" o "sqlite", según tu caso
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,7 +27,7 @@ model User {
   password     String
   role         Role          @default(USER)
   reservations Reservation[]
-  bookings     Booking[] // referencia a Booking ahora sí válida
+  bookings     Booking[]
 }
 
 model Schedule {
@@ -38,7 +38,7 @@ model Schedule {
   capacity     Int
   reservations Reservation[]
   seats        Seat[]
-  bookings     Booking[] // referencia a Booking ahora sí válida
+  bookings     Booking[]
 }
 
 model Movie {
