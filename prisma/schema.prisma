@@ -1,26 +1,48 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" // o "mysql" o "sqlite" según tu caso
+  provider = "postgresql" // o "mysql" o "sqlite", según tu caso
   url      = env("DATABASE_URL")
 }
 
+model Booking {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  scheduleId Int
+  seatNumber String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  schedule Schedule @relation(fields: [scheduleId], references: [id])
+
+  @@unique([scheduleId, seatNumber])
+}
+
 model User {
-  id        Int          @id @default(autoincrement())
-  name      String
-  email     String       @unique
-  password  String
-  role      Role         @default(USER)
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  role         Role          @default(USER)
   reservations Reservation[]
-  bookings   Booking[]   // <-- esta línea
+  bookings     Booking[] // referencia a Booking ahora sí válida
+}
+
+model Schedule {
+  id           Int           @id @default(autoincrement())
+  movieId      Int
+  movie        Movie         @relation(fields: [movieId], references: [id])
+  date         DateTime
+  capacity     Int
+  reservations Reservation[]
+  seats        Seat[]
+  bookings     Booking[] // referencia a Booking ahora sí válida
 }
 
 model Movie {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   description String
   posterUrl   String
@@ -28,34 +50,23 @@ model Movie {
   schedules   Schedule[]
 }
 
-model Schedule {
-  id         Int         @id @default(autoincrement())
-  movieId    Int
-  movie      Movie       @relation(fields: [movieId], references: [id])
-  date       DateTime
-  capacity   Int
-  reservations Reservation[]
-  seats      Seat[]
-  bookings    Booking[]   // <-- esta línea
-}
-
 model Seat {
-  id          Int       @id @default(autoincrement())
-  scheduleId  Int
-  number      String
-  isReserved  Boolean   @default(false)
-  schedule    Schedule  @relation(fields: [scheduleId], references: [id])
-  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  id            Int          @id @default(autoincrement())
+  scheduleId    Int
+  number        String
+  isReserved    Boolean      @default(false)
+  schedule      Schedule     @relation(fields: [scheduleId], references: [id])
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
   reservationId Int?
 }
 
 model Reservation {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   userId     Int
   scheduleId Int
-  createdAt  DateTime  @default(now())
-  user       User      @relation(fields: [userId], references: [id])
-  schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
   seats      Seat[]
 }
 
@@ -63,5 +74,3 @@ enum Role {
   ADMIN
   USER
 }
-
-
